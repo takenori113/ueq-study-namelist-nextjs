@@ -1,0 +1,14 @@
+version: "3.1"
+
+services:
+  db:
+    image: mysql:8.1
+    platform: linux/amd64
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: mydb
+      TZ: Asia/Tokyo
+    ports:
+      - 3306:3306
