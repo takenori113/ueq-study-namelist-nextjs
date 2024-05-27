@@ -34,6 +34,7 @@ export const handler = async (req: Req, res: NextApiResponse) => {
   if (req.method === "POST") {
     connection.query(
       "INSERT INTO user (uid) values(?)",
+
       [req.uid],
       (error, results) => {
         if (error) {
@@ -42,6 +43,7 @@ export const handler = async (req: Req, res: NextApiResponse) => {
           return;
         }
         res.send("ok");
+
       }
     );
   }
