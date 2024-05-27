@@ -3,7 +3,7 @@ import { ref, uploadBytes } from "firebase/storage";
 import PersonFormPart from "@/components/PersonFormPart";
 import NameListItem from "@/components/NameListItem";
 import { Person, User } from "@/types";
-import { firestore, storage, auth, signOut } from "@/firebase";
+import { storage, auth, signOut } from "@/firebase";
 const url = "http://localhost:3000";
 
 type Target = {
@@ -36,10 +36,23 @@ export default function Home() {
       } else {
         const appUser = user as User;
         setUser(appUser);
+        createUser();
         fetchPeople();
       }
     });
   }, []);
+
+  const createUser = async () => {
+    const idToken = await auth.currentUser?.getIdToken();
+    await fetch(`${url}/api/createUser`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+    console.log(idToken);
+  };
 
   const handleAdd = async (data: Person) => {
     const idToken = await auth.currentUser?.getIdToken();

@@ -16,48 +16,28 @@ getApps().length === 0
   ? initializeApp({ credential: cert(serviceAccount as unknown as string) })
   : getApp();
 
-export const handler = async (req: any, res: any) => {
+type Req = NextApiRequest & {
+  uid?: string;
+  email?: string;
+  params: {
+    id?: string;
+  };
+};
+
+export const handler = async (req: Req, res: NextApiResponse) => {
   const token = req.headers.authorization?.replace(/^Bearer\s/g, "");
   if (token) {
     const user = await getAuth().verifyIdToken(token);
     req.uid = user.uid;
     req.email = user.email;
   }
-
-  if (req.method === "DELETE") {
-    const { id } = req.query;
-    connection.query(
-      "delete from people where id = ? and uid = ?",
-      [id, req.uid],
-      (error, results) => {
-        if (error) {
-          console.log(error);
-          res.status(500).send("error");
-          return;
-        }
-        res.send("ok");
-      }
-    );
-  } else if (req.method === "PUT") {
-    const { id } = req.query;
-    const updatePerson = {
-      name: req.body.name,
-      gender: req.body.gender,
-      note: req.body.note,
-      photo: req.body.photo,
-      birth_date: req.body.bath_date,
+  if (req.method === "POST") {
+    const newUser = {
+      uid: req.uid,
     };
     connection.query(
-      "update people set name = ?,gender=?,note=?,photo=?,birth_date=? where id = ? and uid = ?",
-      [
-        updatePerson.name,
-        updatePerson.gender,
-        updatePerson.note,
-        updatePerson.photo,
-        updatePerson.birth_date,
-        id,
-        req.uid,
-      ],
+      "INSERT INTO user (uid) values(?)",
+      [req.uid],
       (error, results) => {
         if (error) {
           console.log(error);

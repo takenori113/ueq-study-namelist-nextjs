@@ -16,7 +16,16 @@ getApps().length === 0
   ? initializeApp({ credential: cert(serviceAccount as unknown as string) })
   : getApp();
 
-export const handler = async (req: any, res: any) => {
+type Req = NextApiRequest & {
+  uid?: string;
+  email?: string;
+  params: {
+    id?: string;
+  };
+  // body: {};
+};
+
+export const handler = async (req: Req, res: NextApiResponse) => {
   const token = req.headers.authorization?.replace(/^Bearer\s/g, "");
   if (token) {
     const user = await getAuth().verifyIdToken(token);
