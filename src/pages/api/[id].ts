@@ -12,17 +12,11 @@ const connection = mysql.createConnection({
   stringifyObjects: true,
 });
 
+import { Req } from "@/firebaseAdmin";
+
 getApps().length === 0
   ? initializeApp({ credential: cert(serviceAccount as unknown as string) })
   : getApp();
-
-type Req = NextApiRequest & {
-  uid?: string;
-  email?: string;
-  params: {
-    id?: string;
-  };
-};
 
 export const handler = async (req: Req, res: NextApiResponse) => {
   const token = req.headers.authorization?.replace(/^Bearer\s/g, "");
@@ -31,11 +25,12 @@ export const handler = async (req: Req, res: NextApiResponse) => {
     req.uid = user.uid;
     req.email = user.email;
   }
-  if (req.method === "POST") {
-    connection.query(
-      "INSERT INTO user (uid) values(?)",
 
-      [req.uid],
+  if (req.method === "DELETE") {
+    const { id } = req.query;
+    connection.query(
+      "delete from people where id = ? and uid = ?",
+      [id, req.uid],
       (error, results) => {
         if (error) {
           console.log(error);
@@ -43,7 +38,35 @@ export const handler = async (req: Req, res: NextApiResponse) => {
           return;
         }
         res.send("ok");
-
+      }
+    );
+  } else if (req.method === "PUT") {
+    const { id } = req.query;
+    const updatePerson = {
+      name: req.body.name,
+      gender: req.body.gender,
+      note: req.body.note,
+      photo: req.body.photo,
+      birth_date: req.body.bath_date,
+    };
+    connection.query(
+      "update people set name = ?,gender=?,note=?,photo=?,birth_date=? where id = ? and uid = ?",
+      [
+        updatePerson.name,
+        updatePerson.gender,
+        updatePerson.note,
+        updatePerson.photo,
+        updatePerson.birth_date,
+        id,
+        req.uid,
+      ],
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          res.status(500).send("error");
+          return;
+        }
+        res.send("ok");
       }
     );
   }

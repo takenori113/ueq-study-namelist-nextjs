@@ -31,11 +31,39 @@ export const handler = async (req: Req, res: NextApiResponse) => {
     req.uid = user.uid;
     req.email = user.email;
   }
-  if (req.method === "POST") {
+  if (req.method === "GET") {
     connection.query(
-      "INSERT INTO user (uid) values(?)",
-
+      "SELECT * FROM people where uid = ?",
       [req.uid],
+      (error: any, results: any) => {
+        if (error) {
+          console.log(error);
+          res.status(500).send("error");
+          return;
+        }
+        console.log(results);
+        res.json(results);
+      }
+    );
+  } else if (req.method === "POST") {
+    const newPerson = {
+      name: req.body.name,
+      gender: req.body.gender,
+      note: req.body.note,
+      photo: req.body.photo,
+      birth_date: req.body.bath_date,
+      uid: req.body.uid,
+    };
+    connection.query(
+      "INSERT INTO people (name,gender,note,photo,birth_date,uid) values(?,?,?,?,?,?)",
+      [
+        newPerson.name,
+        newPerson.gender,
+        newPerson.note,
+        newPerson.photo,
+        newPerson.birth_date,
+        req.uid,
+      ],
       (error, results) => {
         if (error) {
           console.log(error);
@@ -43,7 +71,21 @@ export const handler = async (req: Req, res: NextApiResponse) => {
           return;
         }
         res.send("ok");
-
+      }
+    );
+  } else if (req.method === "DELETE") {
+    const id = req.params.id;
+    console.log(req.body);
+    connection.query(
+      "delete from people where id = ? and uid = ?",
+      [id, req.uid],
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          res.status(500).send("error");
+          return;
+        }
+        res.send("ok");
       }
     );
   }
