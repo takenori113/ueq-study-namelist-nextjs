@@ -22,7 +22,6 @@ type Req = NextApiRequest & {
   params: {
     id?: string;
   };
-  // body: {};
 };
 
 export const handler = async (req: Req, res: NextApiResponse) => {
@@ -75,7 +74,6 @@ export const handler = async (req: Req, res: NextApiResponse) => {
       }
     );
   } else if (req.method === "DELETE") {
-    console.log(req.params);
     const id = req.params.id;
     console.log(req.body);
     connection.query(

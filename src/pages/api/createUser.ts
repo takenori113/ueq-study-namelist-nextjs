@@ -32,9 +32,6 @@ export const handler = async (req: Req, res: NextApiResponse) => {
     req.email = user.email;
   }
   if (req.method === "POST") {
-    const newUser = {
-      uid: req.uid,
-    };
     connection.query(
       "INSERT INTO user (uid) values(?)",
       [req.uid],
